@@ -9,9 +9,9 @@ cd $thisdir
 opts=""
 while getopts h:p:w opt; do
    case $opt in
-     h) SPOTHOST=$OPTARG
+     h) spotlighthost=$OPTARG
         ;;
-     p) SPOTPORT=$OPTARG
+     p) spotlightport=$OPTARG
         ;;
      w) WIKIDB=$OPTARG
         ;;
@@ -22,26 +22,26 @@ while getopts h:p:w opt; do
 done
 
 
-SPOTHOST_DEF=localhost
-SPOTHOST=${SPOTHOST:-${SPOTHOST_DEF}}
+spotlighthost_def=localhost
+spotlighthost=${spotlighthost:-${spotlighthost_DEF}}
 
 case ${naflang} in
-   de) SPOTPORT_DEF=2010
+   de) spotlightport_def=2010
        ;;
-   en) SPOTPORT_DEF=2020
+   en) spotlightport_def=2020
        ;;
-   es) SPOTPORT_DEF=2030
+   es) spotlightport_def=2030
        ;;
-   fr) SPOTPORT_DEF=2040
+   fr) spotlightport_def=2040
        ;;
-   it) SPOTPORT_DEF=2050
+   it) spotlightport_def=2050
        ;;
-   nl) SPOTPORT_DEF=2060
+   nl) spotlightport_def=2060
        ;;
-   *) SPOTPORT_DEF=2020
+   *) spotlightport_def=2020
        ;;
 esac
-SPOTPORT=${SPOTPORT:-${SPOTPORT_DEF}}
+spotlightport=${spotlightport:-${spotlightport_def}}
 
 WIKIDB_DEF=${thisdir}/lib/wikipedia-db
 WIKIDB=${WIKIDB:-${WIKIDB_DEF}}
@@ -53,5 +53,5 @@ else
   wikip_arg="-i ${WIKIDB} -n ${naflang}En"
 fi
 
-# cat | java -Xmx1000m -jar $JARFILE -H ${SPOTHOST} -p ${SPOTPORT} -e candidates ${wikip_arg} 
-echo  java -Xmx1000m -jar $JARFILE -H ${SPOTHOST} -p ${SPOTPORT} -e candidates ${wikip_arg} 
+cat | java -Xmx1000m -jar $JARFILE -H "http://"${spotlighthost} -p ${spotlightport} -e candidates ${wikip_arg} 
+# echo  java -Xmx1000m -jar $JARFILE -H ${spotlighthost} -p ${spotlightport} -e candidates ${wikip_arg} 
