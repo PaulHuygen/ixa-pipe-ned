@@ -76,7 +76,7 @@ if
 then
   wikip_arg=""
 else 
-  wikip_arg="-i ${WIKIDB} -n ${naflang}En"
+  wikip_arg="-i ${WIKIDB} -n ${NAFLANG}En"
 fi
 
 JARFILE=ixa-pipe-ned-1.1.6.jar
