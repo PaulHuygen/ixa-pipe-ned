@@ -1,17 +1,43 @@
 #!/bin/bash
-thisdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-JARFILE=ixa-pipe-ned-1.1.6.jar
+modname=ixa-pipe-ned
+#
+# Find the path to this module
+#
+if
+  [ -z ${MODROOT+x} ]
+then
+  # Find out path ourselves
+  thisdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+else
+  thisdir=$MODROOT/$modname
+fi
+thisscript=${thisdir}/run
 cd $thisdir
+#
+# Find the language
+#
+if
+  [ -z "${NAFLANG+x}" ]
+then
+  naffile=`mktemp -t naf.XXXXXX`
+  cat >$naffile
+  NAFLANG=`cat $naffile | python ${thisdir}/langdetect.py` 
+  export NAFLANG
+  cat $naffile | $thisscript
+  result=$?
+  rm $naffile
+  exit $result
+fi
 # Need to set:
-# 1. URL of Spotlight host
-# 2. Port for Spotlight
-# 3. Location of wikipedia-db
+# h: URL of Spotlight host
+# p: Port for Spotlight
+# w: Location of wikipedia-db
 opts=""
 while getopts h:p:w opt; do
    case $opt in
-     h) spotlighthost=$OPTARG
+     h) SPOTLIGHTHOST=$OPTARG
         ;;
-     p) spotlightport=$OPTARG
+     p) SPOTLIGHTPORT=$OPTARG
         ;;
      w) WIKIDB=$OPTARG
         ;;
@@ -23,9 +49,9 @@ done
 
 
 spotlighthost_def=localhost
-spotlighthost=${spotlighthost:-${spotlighthost_DEF}}
+SPOTLIGHTHOST=${SPOTLIGHTHOST:-${spotlighthost_def}}
 
-case ${naflang} in
+case ${NAFLANG} in
    de) spotlightport_def=2010
        ;;
    en) spotlightport_def=2020
@@ -41,17 +67,18 @@ case ${naflang} in
    *) spotlightport_def=2020
        ;;
 esac
-spotlightport=${spotlightport:-${spotlightport_def}}
+SPOTLIGHTPORT=${SPOTLIGHTPORT:-${spotlightport_def}}
 
 WIKIDB_DEF=${thisdir}/lib/wikipedia-db
 WIKIDB=${WIKIDB:-${WIKIDB_DEF}}
 if
-  [ "${WIKIDB}x" == "x" ] || [ "${naflang}" == "en" ]
+  [ "${WIKIDB}x" == "x" ] || [ "${NAFLANG}" == "en" ]
 then
   wikip_arg=""
 else 
   wikip_arg="-i ${WIKIDB} -n ${naflang}En"
 fi
 
-cat | java -Xmx1000m -jar $JARFILE -H "http://"${spotlighthost} -p ${spotlightport} -e candidates ${wikip_arg} 
+JARFILE=ixa-pipe-ned-1.1.6.jar
+cat | java -Xmx1000m -jar $JARFILE -H "http://"${SPOTLIGHTHOST} -p ${SPOTLIGHTPORT} -e candidates ${wikip_arg} 
 # echo  java -Xmx1000m -jar $JARFILE -H ${spotlighthost} -p ${spotlightport} -e candidates ${wikip_arg} 
